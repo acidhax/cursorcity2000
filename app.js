@@ -81,7 +81,7 @@ app.configure(function(){
       path: '/',
       httpOnly: false,
       maxAge: process.env.sessionMaxAge?parseInt(process.env.sessionMaxAge, 10):(1000 * 60 * 60 * 24 * 60),
-      domain: process.env.cookieDomain || 'matbee.com'
+      domain: process.env.cookieDomain || 'hp.discome.com'
     },
     key: sessionKey
   }));
@@ -111,13 +111,14 @@ wh.on("battle", function (channel) {
   var self = this;
   writeClient.sadd("battle:"+channel, this.sessionId, function () {
     readClient.smembers("battle:"+channel, function (err, members) {
-      // members = sessionids[];
-      members.each(function (member) {
-        self.rpc.userJoined(null, member);
-      });
+      if (!err && members && members.length > 0) {
+        members.forEach(function (member) {
+          self.rpc.userJoined(null, member);
+        });
+      }
     });
   });
-  redisSub.publish("battle:"+channel, this.sessionId);
+  redisSub.publish("battle:"+channel, this.sessionId, function(){});
   redisSub.on("battle:"+channel, function (sessionId) {
     if (sessionId != self.sessionId) {
       self.rpc.userJoined(null, sessionId);
@@ -135,7 +136,7 @@ wh.on("battle", function (channel) {
 });
 
 wh.on("flee", function (channel) {
-  redisSub.publish("flee:"+channel, this.sessionId);
+  redisSub.publish("flee:"+channel, this.sessionId, function(){});
 });
 
 var server = http.createServer(app);
