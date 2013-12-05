@@ -88,7 +88,7 @@
 		});
 		wh.on("userLeft", function (err, id) {
 			console.log("User left me!", id);
-			document.documentElement.removeChild(peer.dommy);
+			$("[data-myClientId="+id+"]").remove();
 		});
     </script>
 <style>
