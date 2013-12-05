@@ -107,7 +107,7 @@ wh.on("leaveChannel", function (channel) {
   this.leaveRTCChannel(channel);
 });
 
-wh.on("battle", function (channel) {
+wh.on("battle", function (channel, myClientId) {
   var self = this;
   writeClient.sadd("battle:"+channel, this.socket.id, function () {
     readClient.smembers("battle:"+channel, function (err, members) {
@@ -119,30 +119,30 @@ wh.on("battle", function (channel) {
     });
   });
   redisSub.publish("battle:"+channel, this.socket.id, function(){});
-  var battleChannelCB = function (socketId) {
-    if (socketId != self.socket.id) {
-      self.rpc.userJoined(null, socketId);
+  var battleChannelCB = function (id) {
+    if (id != myClientId) {
+      self.rpc.userJoined(null, id);
     }
   };
   redisSub.on("battle:"+channel, battleChannelCB);
-  var fleeChannelCB = function (socketId) {
-    if (self.socket.id == socketId) {
+  var fleeChannelCB = function (id) {
+    if (myClientId == id) {
       // I'm leaving.
-      writeClient.srem("battle:"+channel, self.socket.id);
+      writeClient.srem("battle:"+channel, myClientId);
       self.leaveRTCChannel(channel);
       redisSub.removeListener("flee:"+channel, fleeChannelCB);
       redisSub.removeListener("battle:"+channel, battleChannelCB);
     } else {
       // YOU LEAVING BRO?
-      self.rpc.userLeft(null, socketId);
+      self.rpc.userLeft(null, id);
     }
   };
   redisSub.on("flee:"+channel, fleeChannelCB);
   var discoFunc = function () {
-    redisSub.publish("flee:"+channel, self.socket.id, function(){});
+    redisSub.publish("flee:"+channel, myClientId, function(){});
     self.leaveRTCChannel(channel);
   };
-  console.log("Setting up disconnect event:", channel, self.socket.id);
+  console.log("Setting up disconnect event:", channel, myClientId);
   this.once("disconnect", discoFunc);
 });
 
