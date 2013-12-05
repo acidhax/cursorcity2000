@@ -9,6 +9,7 @@
     <script type="text/javascript" src="/javascripts/video.js"></script>
     <script type="text/javascript" src="/wormhole/follow/connect.js"></script>
     <script type="text/javascript" src="/javascripts/JustType.js"></script>
+    <script type="text/javascript" src="/javascripts/rando.js"></script>
     <script type="text/javascript">
 		var typer = new JustType();
 		document.documentElement.appendChild(typer._el);
@@ -74,13 +75,11 @@
 		});
 		wh.ready(function () {
 			wh.rpc.joinRTCChannel(window.location.href);
-			wh.rpc.battle(window.location.href);
+			wh.rpc.battle(window.location.href, );
 		});
-
 		wh.on("userJoined", function (err, id) {
 			console.log("User joined me!", id);
 		});
-
 		wh.on("userLeft", function (err, id) {
 			console.log("User left me!", id);
 		});
