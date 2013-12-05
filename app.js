@@ -174,6 +174,15 @@ wh.on("flee", function (channel, myClientId) {
   redisSub.publish("flee:"+channel, myClientId, function(){});
 });
 
+wh.clientMethods({
+  setupClick: function (myClientId) {
+    $(document).on("click", '.cursor', function (ev) {
+      $(this).attr("data-id");
+      wh.rpc.click($(this).attr("data-id"), myClientId, 1);
+    });
+  }
+})
+
 var server = http.createServer(app);
 server.listen(process.env.PORT || 8080, function(){
   console.log('Express server listening on port ' + app.get('port'));

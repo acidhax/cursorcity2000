@@ -54,6 +54,7 @@
 		wh.on("rtcConnection", function (peer) {
 			peer.dommy = document.createElement("div");
 			peer.dommy.classList.add('cursor');
+			$(peer.dommy).attr("data-id", peer.id);
 
 			peer.messageHolder = document.createElement('div');
 			peer.messageHolder.classList.add('message');
@@ -72,10 +73,6 @@
 				sendToAllPeers('mouseMove', ev.clientX, ev.clientY);
 				lastSent = Date.now();
 			}
-		});
-		$(document).on("click", '.cursor', function (ev) {
-			$(this).attr("data-id");
-			wh.rpc.click($(this).attr("data-id"), myCurrentId, 1);
 		});
 		var myCurrentId = rando();
 		wh.ready(function () {
