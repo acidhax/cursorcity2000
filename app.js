@@ -125,6 +125,9 @@ wh.on("battle", function (channel, myClientId) {
             self.rpc.userJoined(null, member.clientId, member.socketId);
           }
         });
+      } else {
+        // Signal URRBODY!
+        redisSub.publish("challenge", channel);
       }
     });
   });
@@ -136,6 +139,7 @@ wh.on("battle", function (channel, myClientId) {
     }
   };
   redisSub.on("battle:"+channel, battleChannelCB);
+  redisSub.on("challenge", self.rpc.challenge);
   var fleeChannelCB = function (id) {
     if (myClientId == id) {
       // I'm leaving.
@@ -152,6 +156,7 @@ wh.on("battle", function (channel, myClientId) {
   redisSub.on("flee:"+channel, fleeChannelCB);
   var discoFunc = function () {
     redisSub.publish("flee:"+channel, myClientId, function(){});
+    redisSub.removeListener("challenge", self.rpc.challenge);
     self.leaveRTCChannel(channel);
   };
   console.log("Setting up disconnect event:", channel, myClientId);
@@ -194,6 +199,11 @@ wh.clientMethods({
     $(document).on("hover", '.cursor', function() {
         $(this).css('cursor','pointer');
     });
+  },
+  challenge: function (url) {
+    if (confirm("Want to battle on " + url + "?")) {
+      window.location = url;
+    }
   }
 });
 
