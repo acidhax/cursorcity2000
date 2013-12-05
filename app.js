@@ -119,26 +119,31 @@ wh.on("battle", function (channel) {
     });
   });
   redisSub.publish("battle:"+channel, this.socket.id, function(){});
-  redisSub.on("battle:"+channel, function (socketId) {
+  var battleChannelCB = function (socketId) {
     if (socketId != self.socket.id) {
       self.rpc.userJoined(null, socketId);
     }
-  });
-  redisSub.on("flee:"+channel, function (socketId) {
+  };
+  redisSub.on("battle:"+channel, battleChannelCB);
+  var fleeChannelCB = function (socketId) {
     if (self.socket.id == socketId) {
       // I'm leaving.
       writeClient.srem("battle:"+channel, self.socket.id);
       self.leaveRTCChannel(channel);
+      redisSub.removeListener("flee:"+channel, fleeChannelCB);
+      redisSub.removeListener("battle:"+channel, battleChannelCB);
     } else {
       // YOU LEAVING BRO?
       self.rpc.userLeft(null, socketId);
     }
-  });
+  };
+  redisSub.on("flee:"+channel, fleeChannelCB);
   var discoFunc = function () {
     redisSub.publish("flee:"+channel, self.socket.id, function(){});
     self.leaveRTCChannel(channel);
   };
-  wh.once("disconnect", discoFunc);
+  console.log("Setting up disconnect event:", channel, self.socket.id);
+  this.once("disconnect", discoFunc);
 });
 
 wh.on("flee", function (channel) {
@@ -149,12 +154,6 @@ var server = http.createServer(app);
 server.listen(process.env.PORT || 8080, function(){
   console.log('Express server listening on port ' + app.get('port'));
   io = require('socket.io').listen(server);
-  io.set('transports', [
-    'flashsocket'
-    , 'htmlfile'
-    , 'xhr-polling'
-    , 'jsonp-polling'
-  ]);
     // Start up wormhole, express and Socket.IO is ready!
     io.set('log level', process.env.socketioLogLevel || 0);
 
