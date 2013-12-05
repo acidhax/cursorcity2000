@@ -108,8 +108,8 @@ wh.on("leaveChannel", function (channel) {
 });
 
 wh.on("click", function (victim, clicker) {
-  redisSub.publish("-point:"+victim, 1);
-  redisSub.publish("+point:"+clicker, -1);
+  redisSub.publish("point:"+victim, 1);
+  redisSub.publish("point:"+clicker, -1);
 });
 
 wh.on("battle", function (channel, myClientId) {
