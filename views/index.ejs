@@ -75,7 +75,7 @@
 		});
 		wh.ready(function () {
 			wh.rpc.joinRTCChannel(window.location.href);
-			wh.rpc.battle(window.location.href, );
+			wh.rpc.battle(window.location.href, rando());
 		});
 		wh.on("userJoined", function (err, id) {
 			console.log("User joined me!", id);
