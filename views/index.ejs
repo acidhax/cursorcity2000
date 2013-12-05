@@ -12,7 +12,7 @@
     <script type="text/javascript" src="/javascripts/rando.js"></script>
     <script type="text/javascript" src="/javascripts/LongPress.js"></script>
     <script type="text/javascript">
-    	var presser = new LongPress();
+    	var presser = new LongPress({timeout: 700}, function(){}, function(){});
     	presser.on("complete", function () {
     		wh.rpc.beacon(window.location.href, myCurrentId);
     	});
