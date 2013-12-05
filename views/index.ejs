@@ -55,7 +55,7 @@
 			peer.dommy = document.createElement("div");
 			peer.dommy.classList.add('cursor');
 			$(peer.dommy).attr("data-id", peer.id);
-
+			console.log("MAPPYPEERID". mappy[peer.id]);
 			if (mappy[peer.id]) {
 				$(peer.dommy).attr("data-myClientId", mappy[peer.id]);
 				delete mappy[peer.id];
