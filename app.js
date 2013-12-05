@@ -167,6 +167,8 @@ wh.on("battle", function (channel, myClientId) {
       });
     });
   });
+
+  this.rpc.setupClick(myClientId);
 });
 
 wh.on("flee", function (channel, myClientId) {
@@ -177,7 +179,6 @@ wh.on("flee", function (channel, myClientId) {
 wh.clientMethods({
   setupClick: function (myClientId) {
     $(document).on("click", '.cursor', function (ev) {
-      $(this).attr("data-id");
       wh.rpc.click($(this).attr("data-id"), myClientId, 1);
     });
   }
