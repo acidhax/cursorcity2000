@@ -107,6 +107,11 @@ wh.on("leaveChannel", function (channel) {
   this.leaveRTCChannel(channel);
 });
 
+wh.on("click", function (victim, clicker) {
+  redisSub.publish("-point:"+victim, 1);
+  redisSub.publish("+point:"+clicker, -1);
+});
+
 wh.on("battle", function (channel, myClientId) {
   myClientId = myClientId || this.socket.id
   var self = this;
@@ -135,6 +140,7 @@ wh.on("battle", function (channel, myClientId) {
       self.leaveRTCChannel(channel);
       redisSub.removeListener("flee:"+channel, fleeChannelCB);
       redisSub.removeListener("battle:"+channel, battleChannelCB);
+      redisSub.removeAllListeners("point:"+myClientId);
     } else {
       // YOU LEAVING BRO?
       self.rpc.userLeft(null, id);
@@ -147,6 +153,10 @@ wh.on("battle", function (channel, myClientId) {
   };
   console.log("Setting up disconnect event:", channel, myClientId);
   this.once("disconnect", discoFunc);
+
+  redisSub.on("point:"+myClientId, function (value) {
+
+  });
 });
 
 wh.on("flee", function (channel, myClientId) {
