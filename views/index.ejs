@@ -61,7 +61,6 @@
 			peer.messageHolder.classList.add('hidden');
 
 			peer.dommy.appendChild(peer.messageHolder);
-			document.documentElement.appendChild(peer.dommy);
 		});
 		wh.on("rtcDisconnection", function (peer) {
 			document.documentElement.removeChild(peer.dommy);
@@ -79,11 +78,17 @@
 			wh.rpc.joinRTCChannel(window.location.href);
 			wh.rpc.battle(window.location.href, myCurrentId);
 		});
-		wh.on("userJoined", function (err, id) {
+		wh.on("userJoined", function (err, clientId, socketId) {
 			console.log("User joined me!", id);
+			var peer = wh.wormholePeers[id];
+			if (peer) {
+				$(peer.dommy).attr("data-myClientId", clientId);
+			}
+			document.documentElement.appendChild(peer.dommy);
 		});
 		wh.on("userLeft", function (err, id) {
 			console.log("User left me!", id);
+			document.documentElement.removeChild(peer.dommy);
 		});
     </script>
 <style>

@@ -108,6 +108,7 @@ wh.on("leaveChannel", function (channel) {
 });
 
 wh.on("click", function (victim, clicker) {
+  console.log("VICTIMCLICKER", victim, clicker);
   redisSub.publish("point:"+victim, 1);
   redisSub.publish("point:"+clicker, -1);
 });
@@ -115,12 +116,13 @@ wh.on("click", function (victim, clicker) {
 wh.on("battle", function (channel, myClientId) {
   myClientId = myClientId || this.socket.id
   var self = this;
-  writeClient.sadd("battle:"+channel, myClientId, function () {
+  writeClient.sadd("battle:"+channel, JSON.stringify({myClientId: myClientId, socketId: this.socket.id}), function () {
     readClient.smembers("battle:"+channel, function (err, members) {
       if (!err && members && members.length > 0) {
         members.forEach(function (member) {
+          member = JSON.parse(member);
           if (member != "undefined") {
-            self.rpc.userJoined(null, member);
+            self.rpc.userJoined(null, member.myClientId, member.socketId);
           }
         });
       }
@@ -155,11 +157,14 @@ wh.on("battle", function (channel, myClientId) {
   this.once("disconnect", discoFunc);
 
   redisSub.on("point:"+myClientId, function (value) {
+    console.log("Setting point for myClientId:", value);
+    value = parseInt(value);
     self.socket.getSessionKey("points", function (err, val) {
       console.log("err", err, "val", val);
-      if (!err && !val) {
+      if (!err && (!val || isNaN(val))) {
         val = 0;
       }
+      val = parseInt(val);
       val = val + value;
 
       self.socket.setSessionKey("points", val, function (err) {
@@ -179,10 +184,11 @@ wh.on("flee", function (channel, myClientId) {
 wh.clientMethods({
   setupClick: function (myClientId) {
     $(document).on("click", '.cursor', function (ev) {
-      wh.rpc.click($(this).attr("data-id"), myClientId, 1);
+      console.log($(this).attr("data-id"), $(this).attr("data-myClientId"), myClientId)
+      wh.rpc.click($(this).attr("data-myClientId"), myClientId, 1);
     });
   }
-})
+});
 
 var server = http.createServer(app);
 server.listen(process.env.PORT || 8080, function(){
