@@ -66,6 +66,8 @@
 			peer.messageHolder.classList.add('hidden');
 
 			peer.dommy.appendChild(peer.messageHolder);
+
+			document.documentElement.appendChild(peer.dommy);
 		});
 		wh.on("rtcDisconnection", function (peer) {
 			document.documentElement.removeChild(peer.dommy);
@@ -86,9 +88,13 @@
 		var mappy = {};
 		wh.on("userJoined", function (err, clientId, socketId) {
 			console.log("User joined me!", clientId, socketId);
-			var peer = wh.wormholePeers[socketId];
-			if (peer && peer.dommy) {
-				$(peer.dommy).attr("data-myClientId", clientId);
+			if (wh.wormholePeers) {
+				var peer = wh.wormholePeers[socketId];
+				if (peer && peer.dommy) {
+					$(peer.dommy).attr("data-myClientId", clientId);
+				} else {
+					mappy[socketId] = clientId;
+				}
 			} else {
 				mappy[socketId] = clientId;
 			}
@@ -96,6 +102,9 @@
 		wh.on("userLeft", function (err, id) {
 			console.log("User left me!", id);
 			$("[data-myClientId="+id+"]").remove();
+		});
+		wh.on("myScore", function (err, score) {
+			sendToAllPeers("message", score);
 		});
     </script>
 <style>

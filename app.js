@@ -169,6 +169,7 @@ wh.on("battle", function (channel, myClientId) {
 
       self.socket.setSessionKey("points", val, function (err) {
         console.log("Set session points.");
+        self.rpc.myScore(null, val);
       });
     });
   });
