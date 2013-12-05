@@ -120,9 +120,13 @@ wh.on("battle", function (channel, myClientId) {
     readClient.smembers("battle:"+channel, function (err, members) {
       if (!err && members && members.length > 1) {
         members.forEach(function (member) {
-          member = JSON.parse(member);
-          if (member != "undefined") {
-            self.rpc.userJoined(null, member.clientId, member.socketId);
+          if (member && member != undefined) {
+            try {
+              member = JSON.parse(member);
+              self.rpc.userJoined(null, member.clientId, member.socketId);  
+            } catch (ex) {
+              writeClient.srem("battle:"+channel, member);
+            }
           }
         });
       } else {
