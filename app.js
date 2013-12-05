@@ -206,7 +206,7 @@ wh.clientMethods({
     });
   },
   challenge: function (url) {
-    if (confirm("Want to battle on " + url + "?")) {
+    if (url != window.location.href && confirm("Want to battle on " + url + "?")) {
       window.location = url;
     }
   }
