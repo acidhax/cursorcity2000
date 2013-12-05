@@ -114,7 +114,9 @@ wh.on("battle", function (channel, myClientId) {
     readClient.smembers("battle:"+channel, function (err, members) {
       if (!err && members && members.length > 0) {
         members.forEach(function (member) {
-          self.rpc.userJoined(null, member);
+          if (member != "undefined") {
+            self.rpc.userJoined(null, member);
+          }
         });
       }
     });
