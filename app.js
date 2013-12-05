@@ -24,6 +24,9 @@ var express = require('express'),
 var readClient = redis.createClient(10254, "pub-redis-10254.us-east-1-4.1.ec2.garantiadata.com");
 var writeClient = redis.createClient(10254, "pub-redis-10254.us-east-1-4.1.ec2.garantiadata.com");
 
+var subClient = redis.createClient(10254, "pub-redis-10254.us-east-1-4.1.ec2.garantiadata.com");
+var pubClient = redis.createClient(10254, "pub-redis-10254.us-east-1-4.1.ec2.garantiadata.com");
+
 var app = express();
 
 if (fs.existsSync('../wormhole-remix')) {
@@ -44,7 +47,7 @@ if (fs.existsSync('../redis-pub-sub')) {
   RedisPubSub = require('redis-sub');
 }
 
-var redisSub = new RedisPubSub({pubClient: writeClient, subClient: readClient});
+var redisSub = new RedisPubSub({pubClient: pubClient, subClient: subClient});
 var sessionStore = new RedisStore({
   prefix: process.env.sessionPrefix || 'matbeeSession:',
   pubsub: redisSub
@@ -102,6 +105,37 @@ wh.on("joinRTCChannel", function (channel) {
 
 wh.on("leaveChannel", function (channel) {
   this.leaveRTCChannel(channel);
+});
+
+wh.on("battle", function (channel) {
+  var self = this;
+  writeClient.sadd("battle:"+channel, this.sessionId, function () {
+    readClient.smembers("battle:"+channel, function (err, members) {
+      // members = sessionids[];
+      members.each(function (member) {
+        self.rpc.userJoined(null, member);
+      });
+    });
+  });
+  redisSub.publish("battle:"+channel, this.sessionId);
+  redisSub.on("battle:"+channel, function (sessionId) {
+    if (sessionId != self.sessionId) {
+      self.rpc.userJoined(null, sessionId);
+    }
+  });
+  redisSub.on("flee:"+channel, function (sessionId) {
+    if (self.sessionId == sessionId) {
+      // I'm leaving.
+      writeClient.srem("battle:"+channel, self.sessionId);
+    } else {
+      // YOU LEAVING BRO?
+      self.rpc.userLeft(null, sessionId);
+    }
+  });
+});
+
+wh.on("flee", function (channel) {
+  redisSub.publish("flee:"+channel, this.sessionId);
 });
 
 var server = http.createServer(app);
