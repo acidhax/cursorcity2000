@@ -73,9 +73,14 @@
 				lastSent = Date.now();
 			}
 		});
+		$(document).on("click", '.cursor', function (ev) {
+			$(this).attr("data-id");
+			wh.rpc.click($(this).attr("data-id"), myCurrentId, 1);
+		});
+		var myCurrentId = rando();
 		wh.ready(function () {
 			wh.rpc.joinRTCChannel(window.location.href);
-			wh.rpc.battle(window.location.href, rando());
+			wh.rpc.battle(window.location.href, myCurrentId);
 		});
 		wh.on("userJoined", function (err, id) {
 			console.log("User joined me!", id);
