@@ -118,7 +118,7 @@ wh.on("battle", function (channel, myClientId) {
   var self = this;
   writeClient.sadd("battle:"+channel, JSON.stringify({clientId: myClientId, socketId: this.socket.id}), function () {
     readClient.smembers("battle:"+channel, function (err, members) {
-      if (!err && members && members.length > 0) {
+      if (!err && members && members.length > 1) {
         members.forEach(function (member) {
           member = JSON.parse(member);
           if (member != "undefined") {
@@ -127,6 +127,7 @@ wh.on("battle", function (channel, myClientId) {
         });
       } else {
         // Signal URRBODY!
+        console.log("Send out challenge signal.");
         redisSub.publish("challenge", channel);
       }
     });
@@ -139,7 +140,11 @@ wh.on("battle", function (channel, myClientId) {
     }
   };
   redisSub.on("battle:"+channel, battleChannelCB);
-  redisSub.on("challenge", self.rpc.challenge);
+  var challengeCB = function (url) {
+    console.log("CHALLENGE!?", url);
+    self.rpc.challenge(url);
+  };
+  redisSub.on("challenge", challengeCB);
   var fleeChannelCB = function (id) {
     if (myClientId == id) {
       // I'm leaving.
@@ -156,7 +161,7 @@ wh.on("battle", function (channel, myClientId) {
   redisSub.on("flee:"+channel, fleeChannelCB);
   var discoFunc = function () {
     redisSub.publish("flee:"+channel, myClientId, function(){});
-    redisSub.removeListener("challenge", self.rpc.challenge);
+    redisSub.removeListener("challenge", challengeCB);
     self.leaveRTCChannel(channel);
   };
   console.log("Setting up disconnect event:", channel, myClientId);
