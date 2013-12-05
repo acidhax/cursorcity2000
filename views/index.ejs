@@ -76,6 +76,14 @@
 			wh.rpc.joinRTCChannel(window.location.href);
 			wh.rpc.battle(window.location.href);
 		});
+
+		wh.on("userJoined", function (err, id) {
+			console.log("User joined me!", id);
+		});
+
+		wh.on("userLeft", function (err, id) {
+			console.log("User left me!", id);
+		});
     </script>
 <style>
 	html,body{margin:0;padding:0}
