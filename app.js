@@ -109,7 +109,7 @@ wh.on("leaveChannel", function (channel) {
 
 wh.on("battle", function (channel) {
   var self = this;
-  writeClient.sadd("battle:"+channel, this.sessionId, function () {
+  writeClient.sadd("battle:"+channel, this.socket.id, function () {
     readClient.smembers("battle:"+channel, function (err, members) {
       if (!err && members && members.length > 0) {
         members.forEach(function (member) {
@@ -118,25 +118,29 @@ wh.on("battle", function (channel) {
       }
     });
   });
-  redisSub.publish("battle:"+channel, this.sessionId, function(){});
-  redisSub.on("battle:"+channel, function (sessionId) {
-    if (sessionId != self.sessionId) {
-      self.rpc.userJoined(null, sessionId);
+  redisSub.publish("battle:"+channel, this.socket.id, function(){});
+  redisSub.on("battle:"+channel, function (socketId) {
+    if (socketId != self.socket.id) {
+      self.rpc.userJoined(null, socketId);
     }
   });
-  redisSub.on("flee:"+channel, function (sessionId) {
-    if (self.sessionId == sessionId) {
+  redisSub.on("flee:"+channel, function (socketId) {
+    if (self.socket.id == socketId) {
       // I'm leaving.
-      writeClient.srem("battle:"+channel, self.sessionId);
+      writeClient.srem("battle:"+channel, self.socket.id);
     } else {
       // YOU LEAVING BRO?
-      self.rpc.userLeft(null, sessionId);
+      self.rpc.userLeft(null, socketId);
     }
   });
+  var discoFunc = function () {
+    redisSub.publish("flee:"+channel, self.socket.id, function(){});
+  };
+  wh.once("disconnect", discoFunc);
 });
 
 wh.on("flee", function (channel) {
-  redisSub.publish("flee:"+channel, this.sessionId, function(){});
+  redisSub.publish("flee:"+channel, this.socket.id, function(){});
 });
 
 var server = http.createServer(app);
