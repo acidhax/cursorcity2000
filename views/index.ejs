@@ -10,7 +10,12 @@
     <script type="text/javascript" src="/wormhole/follow/connect.js"></script>
     <script type="text/javascript" src="/javascripts/JustType.js"></script>
     <script type="text/javascript" src="/javascripts/rando.js"></script>
+    <script type="text/javascript" src="/javascripts/LongPress.js"></script>
     <script type="text/javascript">
+    	var presser = new LongPress();
+    	presser.on("complete", function () {
+    		wh.rpc.beacon(window.location.href, myCurrentId);
+    	});
 		var typer = new JustType();
 		document.documentElement.appendChild(typer._el);
 		typer.enable();

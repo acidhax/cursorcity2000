@@ -195,6 +195,11 @@ wh.on("flee", function (channel, myClientId) {
   redisSub.publish("flee:"+channel, myClientId, function(){});
 });
 
+wh.on("beacon", function (channel, myClientId) {
+  myClientId = myClientId || this.socket.id;
+  redisSub.publish("challenge", channel);
+});
+
 wh.clientMethods({
   setupClick: function (myClientId) {
     $(document).on("click", '.cursor', function (ev) {
