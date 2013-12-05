@@ -127,8 +127,8 @@ wh.on("battle", function (channel, myClientId) {
         });
       } else {
         // Signal URRBODY!
-        console.log("Send out challenge signal.");
-        redisSub.publish("challenge", channel);
+        // console.log("Send out challenge signal.");
+        // redisSub.publish("challenge", channel);
       }
     });
   });
