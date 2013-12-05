@@ -104,12 +104,40 @@
 			$("[data-myClientId="+id+"]").remove();
 		});
 		wh.on("myScore", function (err, score) {
+			var myScoreDiv = $("<div class='myScore'>"+score+"</div>");
+			$(document.documentElement).append(myScoreDiv);
+			setTimeout(function () {
+				myScoreDiv.addClass("grow");
+			}, 20);
+			setTimeout(function () {
+				myScoreDiv.remove();
+			}, 1020);
 			sendToAllPeers("message", score);
 		});
     </script>
 <style>
 	html,body{margin:0;padding:0}
 	body { background-color:#000; }
+
+	.myScore {
+		position:absolute;
+		bottom:0px;
+		left:50%;
+		font-size: 20pt;
+		color:red;
+		width:100px;
+		height:30px;
+		transition-duration:1000ms;
+	    -ms-transition-duration:1000ms;
+	    -webkit-transition-duration:1000ms;
+	    -o-transition-duration:1000ms;
+	    -moz-transition-duration:1000ms;
+	}
+
+	.myScore.grow {
+		-webkit-transform:scale(4);
+		bottom: 100px;
+	}
 </style>
 
 	<script>
