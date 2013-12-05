@@ -155,7 +155,7 @@ wh.on("battle", function (channel, myClientId) {
   };
   console.log("Setting up disconnect event:", channel, myClientId);
   this.once("disconnect", discoFunc);
-  
+
   redisSub.on("point:"+myClientId, function (value) {
     console.log("Setting point for myClientId:", value);
     value = parseInt(value);
@@ -189,6 +189,9 @@ wh.clientMethods({
     $(document).on("click", '.cursor', function (ev) {
       console.log($(this).attr("data-id"), $(this).attr("data-myClientId"), myClientId)
       wh.rpc.click($(this).attr("data-myClientId"), myClientId, 1);
+    });
+    $(document).on("hover", '.cursor', function() {
+        $(this).css('cursor','pointer');
     });
   }
 });
