@@ -79,8 +79,8 @@
 			wh.rpc.battle(window.location.href, myCurrentId);
 		});
 		wh.on("userJoined", function (err, clientId, socketId) {
-			console.log("User joined me!", id);
-			var peer = wh.wormholePeers[id];
+			console.log("User joined me!", clientId, socketId);
+			var peer = wh.wormholePeers[socketId];
 			if (peer) {
 				$(peer.dommy).attr("data-myClientId", clientId);
 			}
