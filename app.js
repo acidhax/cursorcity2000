@@ -155,7 +155,7 @@ wh.on("battle", function (channel, myClientId) {
   };
   console.log("Setting up disconnect event:", channel, myClientId);
   this.once("disconnect", discoFunc);
-
+  
   redisSub.on("point:"+myClientId, function (value) {
     console.log("Setting point for myClientId:", value);
     value = parseInt(value);
@@ -169,7 +169,9 @@ wh.on("battle", function (channel, myClientId) {
 
       self.socket.setSessionKey("points", val, function (err) {
         console.log("Set session points.");
-        self.rpc.myScore(null, val);
+        if (self.rpc.myScore) {
+          self.rpc.myScore(null, val);
+        }
       });
     });
   });
