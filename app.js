@@ -128,6 +128,7 @@ wh.on("battle", function (channel) {
     if (self.socket.id == socketId) {
       // I'm leaving.
       writeClient.srem("battle:"+channel, self.socket.id);
+      self.leaveRTCChannel(channel);
     } else {
       // YOU LEAVING BRO?
       self.rpc.userLeft(null, socketId);
@@ -135,6 +136,7 @@ wh.on("battle", function (channel) {
   });
   var discoFunc = function () {
     redisSub.publish("flee:"+channel, self.socket.id, function(){});
+    self.leaveRTCChannel(channel);
   };
   wh.once("disconnect", discoFunc);
 });
