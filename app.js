@@ -155,7 +155,17 @@ wh.on("battle", function (channel, myClientId) {
   this.once("disconnect", discoFunc);
 
   redisSub.on("point:"+myClientId, function (value) {
+    self.socket.getSessionKey("points", function (err, val) {
+      console.log("err", err, "val", val);
+      if (!err && !val) {
+        val = 0;
+      }
+      val = val + value;
 
+      self.socket.setSessionKey("points", val, function (err) {
+        console.log("Set session points.");
+      });
+    });
   });
 });
 
