@@ -1,0 +1,18 @@
+{
+  "name": "application-name",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app"
+  },
+  "dependencies": {
+    "express": "~3.0.6",
+    "ejs": "*",
+    "socket.io": "~0.9.16",
+    "connect-redis-pubsub": "git+https://github.com/grahamkennery/connect-redis-pubsub.git",
+    "wormhole-remix": "git+https://github.com/acidhax/wormhole-remix.git#webrtc",
+    "redis-sub": "~0.1.8",
+    "async": "~0.2.9",
+    "redis": "~0.8.6"
+  }
+}

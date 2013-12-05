@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="/javascripts/async.js"></script>
+    <script type="text/javascript" src="/javascripts/video.js"></script>
+    <script type="text/javascript" src="/wormhole/follow/connect.js"></script>
+    <script type="text/javascript" src="/javascripts/JustType.js"></script>
+    <script type="text/javascript">
+		var typer = new JustType();
+		document.documentElement.appendChild(typer._el);
+		typer.enable();
+		typer.on('submit', function(message) {
+			sendToAllPeers('message', message);
+		});
+    	var requestAnimationFrame = 
+    		window.requestAnimationFrame ||
+		    window.mozRequestAnimationFrame ||
+		    window.webkitRequestAnimationFrame ||
+		    window.msRequestAnimationFrame ||
+		    function (callback) {
+		        return setTimeout(callback, 1000 / 60);
+		    };
+
+    	var sendToAllPeers = function() {
+    		var args = [].slice.call(arguments);
+    		var func = args.shift();
+    		var peers = [];
+    		for (var i in wh.wormholePeers) {
+				peers.push(wh.wormholePeers[i]);
+			}
+
+    		async.forEach(peers, function(peer, next) {
+    			requestAnimationFrame(function() {
+    				peer.rtc[func].apply(peer, args);
+    			});
+    			next();
+    		});
+
+    	};
+		wh.addRTCFunction("mouseMove", function (x, y) {
+			console.log(this, x, y);
+			this.dommy.style.left = x + 'px';
+			this.dommy.style.top = y + 'px';
+		});
+		wh.addRTCFunction('message', function(message) {
+			this.messageHolder.classList.remove('hidden');
+			this.messageHolder.innerText = message;
+		});
+		wh.on("rtcConnection", function (peer) {
+			peer.dommy = document.createElement("div");
+			peer.dommy.classList.add('cursor');
+
+			peer.messageHolder = document.createElement('div');
+			peer.messageHolder.classList.add('message');
+			peer.messageHolder.classList.add('hidden');
+
+			peer.dommy.appendChild(peer.messageHolder);
+			document.documentElement.appendChild(peer.dommy);
+		});
+		wh.on("rtcDisconnection", function (peer) {
+			document.documentElement.removeChild(peer.dommy);
+			delete peer.dommy;
+		});
+		var lastSent = 0;
+		$(document).on("mousemove", function (ev) {
+			if (Date.now() - lastSent > 200) {
+				sendToAllPeers('mouseMove', ev.clientX, ev.clientY);
+				lastSent = Date.now();
+			}
+		});
+		wh.ready(function () {
+			wh.rpc.joinRTCChannel(window.location.href);
+			wh.rpc.battle(window.location.href);
+		});
+    </script>
+<style>
+	html,body{margin:0;padding:0}
+	body { background-color:#000; }
+</style>
+
+	<script>
+		var started = false;
+
+		var start = function() {
+			if (started)
+			return;
+
+			$('video')[0].play();
+			$('.cover').hide();
+		};
+
+		$(function() {
+			$('body').click(start);
+		});
+	</script>
+
+  </head>
+  <body>
+	<video preload="auto" loop autobuffer webkit-playsinline>
+		<source src="/myface.webm" type='video/webm;' />
+		<source src="/myface.mp4" type='video/mp4;'/>
+		<source src="/myface.ogg" type="video/ogg;" />
+	</video>
+	<div class="cover"></div>
+	<div class="newStyle">
+		<h1><a href="https://twitter.com/matbeeDOTcom">gosbee</a></h1>
+		<h2><a href="https://github.com/acidhax">developer</a></h2>
+	</div>
+	<div class="carddropContact as-seen-in-wrapper">
+		<a href="http://techcrunch.com/2012/12/05/startup-weekend-winner-groupnotes-finds-plenty-of-early-appetite-for-its-collaborative-education-product/">
+	      <img style="width:170px;height:75px;"  src="https://s3.amazonaws.com/groupnotes/img/techcrunch.png">
+	    </a>
+	
+		<a href="http://www.techvibes.com/blog/groupnotes-wins-global-startup-battle-2012-12-05">
+	      <img style="width:170px;height:56px;"  src="https://s3.amazonaws.com/groupnotes/img/techvibes.png">
+	    </a>
+	</div>
+    <script type="text/javascript">
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-37239403-1']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+	</script>
+  </body>
+</html>
