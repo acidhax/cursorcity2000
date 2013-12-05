@@ -108,8 +108,9 @@ wh.on("leaveChannel", function (channel) {
 });
 
 wh.on("battle", function (channel, myClientId) {
+  myClientId = myClientId || this.socket.id
   var self = this;
-  writeClient.sadd("battle:"+channel, this.socket.id, function () {
+  writeClient.sadd("battle:"+channel, myClientId, function () {
     readClient.smembers("battle:"+channel, function (err, members) {
       if (!err && members && members.length > 0) {
         members.forEach(function (member) {
@@ -118,7 +119,7 @@ wh.on("battle", function (channel, myClientId) {
       }
     });
   });
-  redisSub.publish("battle:"+channel, this.socket.id, function(){});
+  redisSub.publish("battle:"+channel, myClientId, function(){});
   var battleChannelCB = function (id) {
     if (id != myClientId) {
       self.rpc.userJoined(null, id);
@@ -146,8 +147,9 @@ wh.on("battle", function (channel, myClientId) {
   this.once("disconnect", discoFunc);
 });
 
-wh.on("flee", function (channel) {
-  redisSub.publish("flee:"+channel, this.socket.id, function(){});
+wh.on("flee", function (channel, myClientId) {
+  myClientId = myClientId || this.socket.id;
+  redisSub.publish("flee:"+channel, myClientId, function(){});
 });
 
 var server = http.createServer(app);
